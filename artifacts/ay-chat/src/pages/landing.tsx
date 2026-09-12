@@ -34,12 +34,12 @@ export default function LandingPage() {
             <Button variant="ghost" size="icon" onClick={toggle} data-testid="button-theme">
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
-            <Link href="/sign-in">
-              <Button variant="ghost" data-testid="button-signin">Sign in</Button>
-            </Link>
-            <Link href="/sign-up">
-              <Button data-testid="button-signup">Get started</Button>
-            </Link>
+            <Button asChild variant="ghost">
+              <Link href="/sign-in" data-testid="button-signin">Sign in</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/sign-up" data-testid="button-signup">Get started</Link>
+            </Button>
           </div>
         </div>
       </header>
@@ -59,12 +59,12 @@ export default function LandingPage() {
           all in one focused space.
         </p>
         <div className="mt-8 flex items-center justify-center gap-3">
-          <Link href="/sign-up">
-            <Button size="lg" data-testid="button-cta-signup">Create your account</Button>
-          </Link>
-          <Link href="/sign-in">
-            <Button size="lg" variant="outline" data-testid="button-cta-signin">I already have an account</Button>
-          </Link>
+          <Button asChild size="lg">
+            <Link href="/sign-up" data-testid="button-cta-signup">Create your account</Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link href="/sign-in" data-testid="button-cta-signin">I already have an account</Link>
+          </Button>
         </div>
       </section>
 
