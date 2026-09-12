@@ -11,6 +11,11 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
 });
 
+function scopedUrl(path) {
+  const scope = new URL(self.registration.scope);
+  return new URL(path.replace(/^\/+/, ""), scope).toString();
+}
+
 self.addEventListener("push", (event) => {
   let payload = {};
   try {
@@ -28,8 +33,8 @@ self.addEventListener("push", (event) => {
   const options = {
     body,
     tag,
-    icon: "/logo.svg",
-    badge: "/logo.svg",
+    icon: scopedUrl("logo.svg"),
+    badge: scopedUrl("logo.svg"),
     renotify: true,
     requireInteraction: isMention,
     silent: false,
@@ -42,7 +47,9 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const targetUrl = (event.notification.data && event.notification.data.url) || "/chat";
+  const targetUrl = scopedUrl(
+    (event.notification.data && event.notification.data.url) || "chat",
+  );
 
   event.waitUntil(
     (async () => {
