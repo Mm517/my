@@ -38,19 +38,20 @@ function NavLinks({ isAdmin, onNavigate }: { isAdmin: boolean; onNavigate?: () =
         const active = location === item.href;
         const Icon = item.icon;
         return (
-          <Link key={item.href} href={item.href} onClick={onNavigate}>
-            <a
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover-elevate",
-                active
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-sidebar-foreground/80",
-              )}
-              data-testid={`nav-${item.href.replace("/", "")}`}
-            >
-              <Icon className="h-4 w-4" />
-              {item.label}
-            </a>
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={onNavigate}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover-elevate",
+              active
+                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                : "text-sidebar-foreground/80",
+            )}
+            data-testid={`nav-${item.href.replace("/", "")}`}
+          >
+            <Icon className="h-4 w-4" />
+            {item.label}
           </Link>
         );
       })}
