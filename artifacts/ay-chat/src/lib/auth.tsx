@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "./supabase";
+import { isSupabaseConfigured, supabase } from "./supabase";
 
 interface AuthContextValue {
   session: Session | null;
@@ -26,6 +26,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const prevUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setIsLoaded(true);
+      return;
+    }
+
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       prevUserIdRef.current = data.session?.user.id ?? null;
@@ -51,10 +56,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoaded,
     isSignedIn: !!session,
     async signInWithPassword(email, password) {
+      if (!isSupabaseConfigured) {
+        return {
+          error: "Authentication is not configured for this environment.",
+        };
+      }
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       return { error: error?.message ?? null };
     },
     async signUpWithPassword(email, password, displayName) {
+      if (!isSupabaseConfigured) {
+        return {
+          error: "Authentication is not configured for this environment.",
+          needsEmailConfirmation: false,
+        };
+      }
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -66,11 +82,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: null, needsEmailConfirmation };
     },
     async signOut() {
+      if (!isSupabaseConfigured) return;
       await supabase.auth.signOut();
     },
     async resetPasswordForEmail(email) {
+      if (!isSupabaseConfigured) {
+        return {
+          error: "Authentication is not configured for this environment.",
+        };
+      }
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}reset-password`,
       });
       return { error: error?.message ?? null };
     },
