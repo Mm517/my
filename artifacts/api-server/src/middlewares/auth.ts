@@ -1,5 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
-import { supabaseAdmin } from "../lib/supabaseAdmin";
+import {
+  isSupabaseAdminConfigured,
+  supabaseAdmin,
+} from "../lib/supabaseAdmin";
 import { anonymizeName } from "../lib/anonymize";
 import type { Profile as DbProfile } from "@workspace/db";
 
@@ -44,6 +47,13 @@ declare global {
  */
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   try {
+    if (!isSupabaseAdminConfigured) {
+      res
+        .status(503)
+        .json({ error: "Authentication is not configured on the server" });
+      return;
+    }
+
     const header = req.headers.authorization;
     const token = header?.startsWith("Bearer ") ? header.slice("Bearer ".length) : null;
 
