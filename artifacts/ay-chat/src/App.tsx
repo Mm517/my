@@ -49,36 +49,34 @@ function AppRoutes() {
   const { isLoaded, isSignedIn } = useAuth();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Switch>
-          <Route path="/" component={HomeRoute} />
-          <Route path="/sign-in">
-            {isLoaded && isSignedIn ? <Redirect to="/chat" /> : <AuthPage />}
-          </Route>
-          <Route path="/sign-up">
-            {isLoaded && isSignedIn ? <Redirect to="/chat" /> : <AuthPage />}
-          </Route>
-          <Route path="/chat">
-            <RequireAuth>
-              <ChatPage />
-            </RequireAuth>
-          </Route>
-          <Route path="/profile">
-            <RequireAuth>
-              <ProfilePage />
-            </RequireAuth>
-          </Route>
-          <Route path="/admin">
-            <RequireAuth>
-              <AdminPage />
-            </RequireAuth>
-          </Route>
-          <Route component={NotFound} />
-        </Switch>
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <TooltipProvider>
+      <Switch>
+        <Route path="/" component={HomeRoute} />
+        <Route path="/sign-in">
+          {isLoaded && isSignedIn ? <Redirect to="/chat" /> : <AuthPage />}
+        </Route>
+        <Route path="/sign-up">
+          {isLoaded && isSignedIn ? <Redirect to="/chat" /> : <AuthPage />}
+        </Route>
+        <Route path="/chat">
+          <RequireAuth>
+            <ChatPage />
+          </RequireAuth>
+        </Route>
+        <Route path="/profile">
+          <RequireAuth>
+            <ProfilePage />
+          </RequireAuth>
+        </Route>
+        <Route path="/admin">
+          <RequireAuth>
+            <AdminPage />
+          </RequireAuth>
+        </Route>
+        <Route component={NotFound} />
+      </Switch>
+      <Toaster />
+    </TooltipProvider>
   );
 }
 
@@ -88,9 +86,11 @@ function App() {
       <ThemeProvider>
         <IntroSplash>
           <WouterRouter base={basePath}>
-            <AuthProvider>
-              <AppRoutes />
-            </AuthProvider>
+            <QueryClientProvider client={queryClient}>
+              <AuthProvider>
+                <AppRoutes />
+              </AuthProvider>
+            </QueryClientProvider>
           </WouterRouter>
         </IntroSplash>
       </ThemeProvider>
