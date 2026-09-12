@@ -1,0 +1,679 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+  - name: auth
+  - name: users
+  - name: messages
+  - name: profile
+  - name: admin
+  - name: chat-state
+  - name: storage
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current authenticated user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentUser"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /me/profile:
+    patch:
+      operationId: updateMyProfile
+      tags: [profile]
+      summary: Update my profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileBody"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentUser"
+  /chat/state:
+    get:
+      operationId: getChatState
+      tags: [chat-state]
+      summary: Get global chat state
+      responses:
+        "200":
+          description: Chat state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatState"
+    patch:
+      operationId: updateChatState
+      tags: [chat-state, admin]
+      summary: Update global chat state (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateChatStateBody"
+      responses:
+        "200":
+          description: Chat state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatState"
+  /messages:
+    get:
+      operationId: listMessages
+      tags: [messages]
+      summary: List recent chat messages
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+    post:
+      operationId: createMessage
+      tags: [messages]
+      summary: Send a chat message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMessageBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /messages/{id}:
+    patch:
+      operationId: updateMessage
+      tags: [messages]
+      summary: Edit a message
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMessageBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+    delete:
+      operationId: deleteMessage
+      tags: [messages]
+      summary: Delete a message
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Deleted
+  /study-plans:
+    get:
+      operationId: listMyStudyPlans
+      tags: [profile]
+      summary: List my study plans
+      responses:
+        "200":
+          description: Plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudyPlan"
+    post:
+      operationId: createStudyPlan
+      tags: [profile]
+      summary: Create a study plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStudyPlanBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudyPlan"
+  /study-plans/{id}:
+    delete:
+      operationId: deleteStudyPlan
+      tags: [profile]
+      summary: Delete my study plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Deleted
+  /challenges:
+    get:
+      operationId: listMyChallenges
+      tags: [profile]
+      summary: List my challenges
+      responses:
+        "200":
+          description: Challenges
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Challenge"
+    post:
+      operationId: createChallenge
+      tags: [profile]
+      summary: Create a challenge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateChallengeBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Challenge"
+  /challenges/{id}:
+    delete:
+      operationId: deleteChallenge
+      tags: [profile]
+      summary: Delete my challenge
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Deleted
+  /admin/users:
+    get:
+      operationId: adminListUsers
+      tags: [admin]
+      summary: List all users (admin)
+      responses:
+        "200":
+          description: Users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminUser"
+  /admin/users/{id}:
+    patch:
+      operationId: adminUpdateUser
+      tags: [admin]
+      summary: Ban / mute / promote a user (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpdateUserBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+  /admin/users/{id}/study-plans:
+    get:
+      operationId: adminListUserStudyPlans
+      tags: [admin]
+      summary: List a user's private study plans (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudyPlan"
+  /admin/users/{id}/challenges:
+    get:
+      operationId: adminListUserChallenges
+      tags: [admin]
+      summary: List a user's private challenges (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Challenges
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Challenge"
+  /admin/stats:
+    get:
+      operationId: adminStats
+      tags: [admin]
+      summary: Admin dashboard stats
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+  /storage/uploads/request-url:
+    post:
+      operationId: requestUploadUrl
+      tags: [storage]
+      summary: Request a presigned upload URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestUploadUrlBody"
+      responses:
+        "200":
+          description: Upload URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RequestUploadUrlResponse"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+    CurrentUser:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        anonymousName:
+          type: string
+        username:
+          type: ["string", "null"]
+        grade:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+        isAdmin:
+          type: boolean
+        isBanned:
+          type: boolean
+        isMuted:
+          type: boolean
+        messagesSent:
+          type: integer
+        joinedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - anonymousName
+        - username
+        - grade
+        - avatarUrl
+        - isAdmin
+        - isBanned
+        - isMuted
+        - messagesSent
+        - joinedAt
+    UpdateProfileBody:
+      type: object
+      properties:
+        name:
+          type: string
+        grade:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+    ChatState:
+      type: object
+      properties:
+        chatEnabled:
+          type: boolean
+        announcement:
+          type: ["string", "null"]
+        updatedAt:
+          type: string
+          format: date-time
+      required: [chatEnabled, announcement, updatedAt]
+    UpdateChatStateBody:
+      type: object
+      properties:
+        chatEnabled:
+          type: boolean
+        announcement:
+          type: ["string", "null"]
+    Attachment:
+      type: object
+      properties:
+        url:
+          type: string
+        name:
+          type: string
+        size:
+          type: integer
+        mimeType:
+          type: string
+        kind:
+          type: string
+          enum: [image, pdf, doc, file]
+      required: [url, name, size, mimeType, kind]
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        anonymousName:
+          type: string
+        grade:
+          type: ["string", "null"]
+        content:
+          type: string
+        attachment:
+          oneOf:
+            - $ref: "#/components/schemas/Attachment"
+            - type: "null"
+        edited:
+          type: boolean
+        filtered:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - anonymousName
+        - grade
+        - content
+        - attachment
+        - edited
+        - filtered
+        - createdAt
+    CreateMessageBody:
+      type: object
+      properties:
+        content:
+          type: string
+        attachment:
+          oneOf:
+            - $ref: "#/components/schemas/Attachment"
+            - type: "null"
+      required: [content]
+    UpdateMessageBody:
+      type: object
+      properties:
+        content:
+          type: string
+      required: [content]
+    StudyPlan:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        subject:
+          type: ["string", "null"]
+        details:
+          type: string
+        targetDate:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, userId, title, subject, details, targetDate, createdAt]
+    CreateStudyPlanBody:
+      type: object
+      properties:
+        title:
+          type: string
+        subject:
+          type: ["string", "null"]
+        details:
+          type: string
+        targetDate:
+          type: ["string", "null"]
+          format: date-time
+      required: [title, details]
+    Challenge:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        details:
+          type: string
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+        completed:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, userId, title, details, difficulty, completed, createdAt]
+    CreateChallengeBody:
+      type: object
+      properties:
+        title:
+          type: string
+        details:
+          type: string
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+      required: [title, details, difficulty]
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        anonymousName:
+          type: string
+        grade:
+          type: ["string", "null"]
+        isAdmin:
+          type: boolean
+        isBanned:
+          type: boolean
+        isMuted:
+          type: boolean
+        messagesSent:
+          type: integer
+        joinedAt:
+          type: string
+          format: date-time
+        lastSeenAt:
+          type: ["string", "null"]
+          format: date-time
+        isOnline:
+          type: boolean
+      required:
+        - id
+        - name
+        - anonymousName
+        - grade
+        - isAdmin
+        - isBanned
+        - isMuted
+        - messagesSent
+        - joinedAt
+        - lastSeenAt
+        - isOnline
+    AdminUpdateUserBody:
+      type: object
+      properties:
+        isBanned:
+          type: boolean
+        isMuted:
+          type: boolean
+        isAdmin:
+          type: boolean
+    AdminStats:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+        totalMessages:
+          type: integer
+        bannedUsers:
+          type: integer
+        mutedUsers:
+          type: integer
+        messagesToday:
+          type: integer
+        chatEnabled:
+          type: boolean
+      required:
+        - totalUsers
+        - totalMessages
+        - bannedUsers
+        - mutedUsers
+        - messagesToday
+        - chatEnabled
+    RequestUploadUrlBody:
+      type: object
+      properties:
+        name:
+          type: string
+        size:
+          type: integer
+        contentType:
+          type: string
+      required: [name, size, contentType]
+    RequestUploadUrlResponse:
+      type: object
+      properties:
+        uploadURL:
+          type: string
+        objectPath:
+          type: string
+      required: [uploadURL, objectPath]

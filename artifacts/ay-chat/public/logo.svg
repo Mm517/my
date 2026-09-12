@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" fill="none">
+  <rect width="64" height="64" rx="14" fill="#0d9488"/>
+  <path d="M16 22c0-3.3 2.7-6 6-6h20c3.3 0 6 2.7 6 6v14c0 3.3-2.7 6-6 6H30l-8 6v-6h0c-3.3 0-6-2.7-6-6V22z" fill="white"/>
+  <text x="32" y="36" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" font-weight="700" fill="#0d9488">AY</text>
+</svg>
